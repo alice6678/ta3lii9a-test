@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ta3liii9a – المعرض الفني ثلاثي الأبعاد</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050505;
+    --surface: #0d0d0d;
+    --card: #121212;
+    --accent: #e8c87a;
+    --accent2: #ff4d6d;
+    --text: #f0ede6;
+    --muted: #888;
+    --price: #e8c87a;
+    --glow: rgba(232,200,122,0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+    height: 100vh;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed; width: 8px; height: 8px;
+    background: var(--accent); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed; width: 40px; height: 40px;
+    border: 2px solid var(--accent); border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.1s ease-out;
+    opacity: 0.5;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  /* NAVBAR */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 4rem;
+    background: linear-gradient(to bottom, rgba(5,5,5,0.95), transparent);
+    backdrop-filter: blur(10px);
+  }
+  .logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.2rem;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    text-decoration: none;
+    text-shadow: 0 0 20px var(--glow);
+  }
+  .logo span { color: var(--accent2); }
+
+  .nav-links { display: flex; gap: 3rem; list-style: none; }
+  .nav-links a {
+    color: var(--text); text-decoration: none; font-size: 0.95rem;
+    opacity: 0.6; transition: 0.3s; letter-spacing: 0.05em;
+  }
+  .nav-links a:hover { opacity: 1; color: var(--accent); }
+
+  /* MAIN HORIZONTAL CONTAINER */
+  .horizontal-scroll-container {
+    display: flex;
+    flex-wrap: nowrap;
+    height: 100vh;
+    width: fit-content;
+    will-change: transform;
+  }
+
+  /* SECTIONS AS HORIZONTAL BLOCKS */
+  .panel {
+    width: 100vw;
+    height: 100vh;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* HERO PANEL */
+  .hero-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: right;
+    width: 110vw; /* إعطاء مساحة أكبر قليلاً للبداية */
+  }
+  .hero-content { max-width: 700px; z-index: 10; position: relative; }
+  .hero-tag {
+    font-size: 0.85rem; letter-spacing: 0.3em; color: var(--accent2);
+    margin-bottom: 1rem; font-weight: bold;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(4rem, 10vw, 8rem);
+    line-height: 0.95;
+    margin-bottom: 1.5rem;
+  }
+  .hero-title span { color: var(--accent); text-shadow: 0 0 40px var(--glow); }
+  .hero-subtitle { font-size: 1.2rem; color: var(--muted); max-width: 500px; line-height: 1.8; margin-bottom: 2.5rem; }
+  
+  .hero-cta { display: flex; gap: 1.5rem; }
+  .btn {
+    padding: 1rem 2.5rem; font-family: 'Tajawal', sans-serif; font-weight: 700;
+    font-size: 0.9rem; text-decoration: none; border: none; cursor: none;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    transition: 0.3s all;
+  }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { background: var(--accent2); color: white; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255,77,109,0.3); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid rgba(240,237,230,0.2); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .scroll-hint {
+    position: absolute; left: 4rem; bottom: 3rem;
+    display: flex; align-items: center; gap: 1rem; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.2em;
+  }
+  .scroll-hint-line { width: 80px; height: 1px; background: linear-gradient(to left, var(--accent), transparent); }
+
+  /* GALLERY PANEL (THE 3D TUNNEL) */
+  .gallery-panel {
+    width: auto;
+    padding-left: 10rem;
+    padding-right: 10rem;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  
+  .gallery-header-inline {
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 4rem;
+  }
+  .panel-title { font-family: 'Bebas Neue', cursive; font-size: 4rem; letter-spacing: 0.05em; }
+  .panel-title span { color: var(--accent); }
+  
+  .filter-bar { display: flex; gap: 0.8rem; }
+  .filter-btn {
+    padding: 0.5rem 1.5rem; background: transparent; border: 1px solid rgba(240,237,230,0.1);
+    color: var(--muted); font-family: 'Tajawal', sans-serif; font-size: 0.85rem; cursor: none;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); transition: 0.3s;
+  }
+  .filter-btn.active, .filter-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: bold; }
+
+  .showcase-row {
+    display: flex;
+    gap: 3.5rem;
+    perspective: 1500px; /* لعمق الـ 3D البصري */
+    padding: 2rem 0;
+  }
+
+  /* 3D POSTER CARD */
+  .poster-card {
+    width: 320px;
+    background: var(--card);
+    flex-shrink: 0;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+  .poster-card:hover {
+    box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(232,200,122,0.1);
+  }
+
+  .poster-img-wrap {
+    aspect-ratio: 3/4; overflow: hidden; position: relative;
+    transform: translateZ(20px); /* دفع الصورة للأمام في البعد الثالث */
+  }
+  .poster-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+  .poster-card:hover .poster-img-wrap img { transform: scale(1.05); }
+
+  .poster-overlay {
+    position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%);
+    display: flex; align-items: flex-end; justify-content: center; padding: 2rem;
+    opacity: 0; transition: 0.3s opacity;
+  }
+  .poster-card:hover .poster-overlay { opacity: 1; }
+  .view-btn {
+    padding: 0.7rem 1.5rem; background: var(--accent); color: var(--bg); font-weight: bold;
+    border: none; cursor: none; font-size: 0.85rem;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .view-btn:hover { background: var(--accent2); color: white; }
+
+  .poster-info {
+    padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    background: var(--card); transform: translateZ(10px);
+  }
+  .poster-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+  .poster-cat { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+  .poster-price { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--price); }
+
+  .new-badge {
+    position: absolute; top: 1rem; right: 1rem; background: var(--accent2); color: white;
+    font-size: 0.65rem; padding: 0.3rem 0.6rem; font-weight: bold; z-index: 20; transform: translateZ(25px);
+  }
+
+  /* FEATURES PANEL */
+  .features-panel { background: var(--bg); }
+  .features-container { max-width: 1100px; width: 100%; }
+  .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.5rem; margin-top: 3rem; }
+  .feature-card {
+    padding: 2.5rem; background: var(--surface); border: 1px solid rgba(232,200,122,0.05);
+    position: relative; transition: 0.3s;
+  }
+  .feature-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+  .feature-icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+  .feature-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .feature-text { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+
+  /* CONTACT PANEL */
+  .contact-panel { background: var(--surface); }
+  .contact-box { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; width: 100%; max-width: 1100px; align-items: center; }
+  .contact-info h2 { font-family: 'Bebas Neue', cursive; font-size: 3.5rem; margin-bottom: 1rem; }
+  .contact-info p { color: var(--muted); margin-bottom: 2.5rem; line-height: 1.8; }
+  .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+  .contact-link {
+    display: flex; align-items: center; gap: 1.5rem; padding: 1.2rem;
+    border: 1px solid rgba(240,237,230,0.05); background: var(--card);
+    text-decoration: none; color: var(--text); transition: 0.3s;
+  }
+  .contact-link:hover { border-color: var(--accent); background: rgba(232,200,122,0.02); }
+  .contact-link-value { font-weight: bold; margin-top: 0.2rem; }
+
+  .big-cta {
+    padding: 3rem 2rem; background: var(--accent); text-align: center;
+    clip-path: polygon(15px 0%, 100% 0%, calc(100% - 15px) 100%, 0% 100%);
+  }
+  .big-cta p { color: rgba(0,0,0,0.6); font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .big-cta a { font-family: 'Bebas Neue', cursive; font-size: 2.2rem; color: var(--bg); text-decoration: none; letter-spacing: 0.05em; display: block; transition: 0.3s; }
+  .big-cta:hover a { letter-spacing: 0.1em; }
+
+  /* MODAL & TOAST */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 800; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px);
+    display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--card); max-width: 450px; width: 100%; border: 1px solid rgba(232,200,122,0.2); position: relative; transform: scale(0.9); transition: 0.3s; }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+  .modal-body { padding: 2rem; }
+  .modal-title { font-family: 'Bebas Neue', cursive; font-size: 2rem; }
+  .modal-price { font-family: 'Bebas Neue', cursive; font-size: 2.2rem; color: var(--price); margin: 0.5rem 0 1.5rem; }
+  .modal-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.6; margin-bottom: 2rem; }
+  .modal-close { position: absolute; top: 1rem; left: 1rem; background: rgba(0,0,0,0.6); border: none; color: white; width: 35px; height: 35px; cursor: none; }
+  .wa-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem; background: #25D366; color: white; text-decoration: none; font-weight: bold; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); }
+
+  /* RESPONSIVE DESIGN (للشاشات الصغيرة) */
+  @media (max-width: 992px) {
+    body { overflow-y: auto; height: auto; cursor: default; }
+    .cursor, .cursor-ring { display: none; }
+    .horizontal-scroll-container { flex-direction: column; width: 100%; height: auto; }
+    .panel { width: 100vw; height: auto; padding: 6rem 2rem; }
+    .hero-panel { width: 100vw; height: 100vh; }
+    .gallery-panel { padding: 4rem 2rem; width: 100vw; }
+    .gallery-header-inline { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    .showcase-row { flex-direction: column; width: 100%; gap: 2rem; }
+    .poster-card { width: 100%; }
+    .contact-box { grid-template-columns: 1fr; gap: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="#" class="logo">Ta3<span>liii</span>9a</a>
+  <ul class="nav-links">
+    <li><a href="#" onclick="scrollToPanel(1)">المعرض</a></li>
+    <li><a href="#" onclick="scrollToPanel(2)">مميزاتنا</a></li>
+    <li><a href="#" onclick="scrollToPanel(3)">تواصل</a></li>
+  </ul>
+</nav>
+
+<div class="horizontal-scroll-container" id="scrollContainer">
+  
+  <section class="panel hero-panel">
+    <div class="hero-content">
+      <p class="hero-tag">✦ فخامة الفن والديكور المطبوع ✦</p>
+      <h1 class="hero-title">Ta3<span>liii</span>9a</h1>
+      <p class="hero-subtitle">انقل جدران غرفتك إلى بُعد آخر مع تصاميم حصرية وبوسترات عالية الدقة تضفي هيبة للمكان.</p>
+      <div class="hero-cta">
+        <a href="#" onclick="scrollToPanel(1)" class="btn btn-primary">اكتشف المعرض</a>
+        <a href="#" onclick="scrollToPanel(3)" class="btn btn-ghost">تواصل مباشر</a>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <span>استخدم عجلة الماوس للتصفح</span>
+      <div class="scroll-hint-line"></div>
+    </div>
+  </section>
+
+  <section class="panel gallery-panel">
+    <div class="gallery-header-inline">
+      <div class="panel-title">المعرض <span>الفني</span></div>
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-cat="all">الكل</button>
+        <button class="filter-btn" data-cat="aesthetic">Aesthetic</button>
+        <button class="filter-btn" data-cat="anime">Anime</button>
+        <button class="filter-btn" data-cat="sport">رياضة</button>
+        <button class="filter-btn" data-cat="series">مسلسلات</button>
+        <button class="filter-btn" data-cat="music">موسيقى</button>
+      </div>
+    </div>
+
+    <div class="showcase-row" id="posterGrid">
+      </div>
+  </section>
+
+  <section class="panel features-panel">
+    <div class="features-container">
+      <div class="panel-title">لماذا تفضل <span>Ta3liii9a</span>؟</div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-icon">🖨️</span>
+          <h3 class="feature-title">طباعة Ultra-HD Premium</h3>
+          <p class="feature-text">ألوان مشبعة وتفاصيل حادة للغاية تبرز أدق تفاصيل التصميم الفني على ورق فاخر.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">💰</span>
+          <h3 class="feature-title">سعر تنافسي موحد</h3>
+          <p class="feature-text">نوفر لك أرقى الفنون بسعر ثابت يناسب الجميع: 70 درهماً فقط للبوستر.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🚀</span>
+          <h3 class="feature-title">شحن سريع لكل مدن المغرب</h3>
+          <p class="feature-text">تغليف آمن وقوي يضمن وصول بوستراتك بدون أي انحناء أو تلف حتى باب بيتك.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🎨</span>
+          <h3 class="feature-title">مجموعة متجددة وحصرية</h3>
+          <p class="feature-text">كولكشن رهيبة تواكب اهتماماتك من عوالم الأنمي، الرياضة، الموسيقى، والـ Aesthetic.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel contact-panel">
+    <div class="contact-box">
+      <div class="contact-info">
+        <h2>اطلب لوحتك الآن</h2>
+        <p>اختر البوستر المفضل لديك وتواصل معنا فوراً. نوفر دعم سريع لتأكيد طلبك وتجهيزه للشحن.</p>
+        <div class="contact-links">
+          <a href="https://wa.me/212658836033" target="_blank" class="contact-link">
+            <span class="feature-icon" style="font-size:1.5rem; margin:0;">📱</span>
+            <div>
+              <div style="font-size: 0.7rem; color: var(--muted)">WHATSAPP</div>
+              <div class="contact-link-value">+212 658 836 033</div>
+            </div>
+          </a>
+          <a href="https://instagram.com/7ess_n1" target="_blank" class="contact-link">
+            <span class="feature-icon" style="font-size:1.5rem; margin:0;">📸</span>
+            <div>
+              <div style="font-size: 0.7rem; color: var(--muted)">INSTAGRAM</div>
+              <div class="contact-link-value">@7ess_n1</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="big-cta">
+          <p>جاهز لتزيين غرفتك؟</p>
+          <a href="https://wa.me/212658836033?text=مرحبا، أريد طلب بوستير من Ta3liii9a" target="_blank">اضغط للطلب عبر واتساب ➜</a>
+        </div>
+        <div style="margin-top:1.5rem; padding:1.5rem; border:1px solid rgba(232,200,122,0.05); text-align:center; background: var(--card)">
+          <p style="font-size:0.85rem; color:var(--muted); line-height:1.8;">
+            📦 الشحن والأسطول: متوفر لجميع مدن المغرب<br>
+            💳 طريقة الأداء: الدفع نقداً عند الاستلام (COD)
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <img src="" alt="" class="modal-img" id="modalImg">
+    <div class="modal-body">
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <div class="modal-price" id="modalPrice"></div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <a href="#" class="wa-btn" id="modalWA" target="_blank">🟢 اطلب الآن عبر واتساب</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 1. تحويل التمرير العمودي لعجلة الماوس إلى تمرير أفقي سلس
+  const container = document.getElementById('scrollContainer');
+  window.addEventListener('wheel', (e) => {
+    if (window.innerWidth > 992) { // تفعيلها فقط على الحواسيب لعدم تخريب السحب العادي في الموبايل
+      e.preventDefault();
+      container.scrollLeft += e.deltaY + e.clientX * 0.1; 
+    }
+  }, { passive: false });
+
+  // التنقل عبر القائمة العلوية للبانلات
+  function scrollToPanel(index) {
+    const panels = document.querySelectorAll('.panel');
+    if(window.innerWidth > 992) {
+      panels[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    } else {
+      panels[index].scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // 2. مؤشر الماوس المخصص الحركي الـ Premium
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    if(window.innerWidth > 992) {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }
+  });
+
+  // تكبير المؤشر عند ملامسة العناصر التفاعلية
+  function addCursorHoverEffects() {
+    document.querySelectorAll('a, button, .poster-card, .filter-btn').forEach(el => {
+      el.addEventListener('mouseenter', () => { ring.style.transform = 'translate(-50%,-50%) scale(1.6)'; ring.style.borderColor = 'var(--accent2)'; });
+      el.addEventListener('mouseleave', () => { ring.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.borderColor = 'var(--accent)'; });
+    });
+  }
+
+  // 3. قاعدة بيانات البوسترات الخاصة بك
+  const posters = [
+    { id: 2, name: "Anime Fighter", cat: "anime", catLabel: "Anime", price: "70 DH", img: "anime_toji.png", desc: "بوستير أنيمي بتصميم احترافي — شخصية قوية بأسلوب رسم ياباني فريد." },
+    { id: 3, name: "Maldini — AC Milan", cat: "sport", catLabel: "رياضة", price: "70 DH", img: "maldini.png", desc: "بوستير الأسطورة باولو مالديني مع نادي AC Milan — هدية مثالية لعشاق كرة القدم.", isNew: true },
+    { id: 4, name: "Alice in Borderland", cat: "series", catLabel: "مسلسلات", price: "70 DH", img: "alice_in_borderland.png", desc: "بوستير مسلسل Alice in Borderland من نتفليكس — تصميم درامي مميز." },
+    { id: 5, name: "The Morphine Show", cat: "music", catLabel: "موسيقى", price: "70 DH", img: "mpsy.png", desc: "بوستير ألبوم The Morphine Show لـ Morphine M-PSY — مصدر إلهام لعشاق الراب." }
+  ];
+
+  // 4. بناء وعرض الكروت مع تأثير الـ 3D Dynamic Tilt المطوّر
+  function renderPosters(filter) {
+    const grid = document.getElementById('posterGrid');
+    const filtered = filter === 'all' ? posters : posters.filter(p => p.cat === filter);
+    grid.innerHTML = '';
+    
+    filtered.forEach((p) => {
+      const card = document.createElement('div');
+      card.className = 'poster-card';
+      card.innerHTML = `
+        ${p.isNew ? '<span class="new-badge">جديد ✦</span>' : ''}
+        <div class="poster-img-wrap">
+          <img src="${p.img}" alt="${p.name}" loading="lazy">
+          <div class="poster-overlay">
+            <button class="view-btn">تفاصيل العرض</button>
+          </div>
+        </div>
+        <div class="poster-info">
+          <div>
+            <div class="poster-name">${p.name}</div>
+            <div class="poster-cat">${p.catLabel}</div>
+          </div>
+          <div class="poster-price">${p.price}</div>
+        </div>
+      `;
+      
+      // فتح التفاصيل عند الضغط على الكارت
+      card.addEventListener('click', () => openModal(p.id));
+
+      // تطبيق تأثير الـ 3D الحركي التفاعلي بدون اهتزاز
+      if (window.innerWidth > 992) {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          
+          // حساب زوايا الدوران بحرية وسلاسة
+          const rotateX = ((y - centerY) / centerY) * -18;
+          const rotateY = ((x - centerX) / centerX) * 18;
+          
+          card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.03, 1.03)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+          // يعود بسلاسة لوضعه الطبيعي عند خروج الماوس
+          card.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        });
+      }
+
+      grid.appendChild(card);
+    });
+    
+    addCursorHoverEffects();
+  }
+
+  // تفعيل الفلترة
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      renderPosters(this.dataset.cat);
+    });
+  });
+
+  // تشغيل المعرض لأول مرة
+  renderPosters('all');
+
+  // 5. التحكم في الـ Modal (نافذة المنتج)
+  function openModal(id) {
+    const p = posters.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('modalImg').src = p.img;
+    document.getElementById('modalTitle').textContent = p.name;
+    document.getElementById('modalPrice').textContent = p.price;
+    document.getElementById('modalDesc').textContent = p.desc;
+    document.getElementById('modalWA').href = `https://wa.me/212658836033?text=مرحبا،%20أريد%20طلب%20بوستير:%20${encodeURIComponent(p.name)}%20-%2070%20درهم`;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  });
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
